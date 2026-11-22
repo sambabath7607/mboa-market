@@ -1,0 +1,7 @@
+# La table de crond : une ligne par tâche. Les cinq premiers champs disent QUAND :
+#   minute (0-59)  heure (0-23)  jour du mois (1-31)  mois (1-12)  jour de la semaine (0-6, 0 = dimanche)
+# « * » veut dire « chaque » : * * * * *, c'est chaque minute. (Toutes les nuits à 2 h 30 : 30 2 * * *)
+# La sortie va au processus 1 (crond lui-même), donc dans « sudo docker compose logs sauvegarde ».
+#
+# À FAIRE (étape 6, P2-06) : la ligne qui lance /usr/local/bin/sauvegarder chaque minute,
+# avec sa sortie vers > /proc/1/fd/1 et ses erreurs vers 2> /proc/1/fd/2

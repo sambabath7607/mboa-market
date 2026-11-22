@@ -1,0 +1,148 @@
+/* Mboa Market : une feuille de style, sans police ni bibliothèque venues d'ailleurs. */
+:root {
+  --fond: #f6f3ec;
+  --carte: #ffffff;
+  --texte: #1f2622;
+  --doux: #5f6a63;
+  --trait: #e2ddd1;
+  --vert: #1d6b45;
+  --vert-clair: #e3f1e8;
+  --ocre: #a86414;
+  --rouge: #a93226;
+  --rouge-clair: #f8e3e0;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #151917;
+    --carte: #1e2421;
+    --texte: #ecefe9;
+    --doux: #a3ada6;
+    --trait: #2f3833;
+    --vert: #6fcf97;
+    --vert-clair: #1f3a2b;
+    --ocre: #e0a458;
+    --rouge: #f1948a;
+    --rouge-clair: #3d2220;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px max(16px, calc((100vw - 1040px) / 2));
+  border-bottom: 1px solid var(--trait);
+  background: var(--carte);
+}
+.marque { display: flex; align-items: center; gap: 12px; }
+.logo {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--vert);
+  color: var(--carte);
+  font-weight: 700;
+  font-size: 22px;
+}
+.nom-boutique { margin: 0; font-size: 20px; font-weight: 700; }
+.slogan, .visites { margin: 0; color: var(--doux); font-size: 14px; }
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 16px;
+}
+@media (max-width: 760px) { .page { grid-template-columns: 1fr; } }
+
+.rayon-entete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+h1 { margin: 0; font-size: 26px; }
+h2 { margin: 0 0 12px; font-size: 18px; }
+.source { margin: 4px 0 18px; color: var(--doux); font-size: 14px; }
+
+.produits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.produit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  background: var(--carte);
+}
+.produit-nom { font-weight: 600; overflow-wrap: anywhere; }
+.produit-prix { color: var(--ocre); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.produit-date { color: var(--doux); font-size: 13px; }
+
+.ajout {
+  align-self: start;
+  padding: 20px;
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  background: var(--carte);
+}
+form { display: grid; gap: 6px; }
+label { margin-top: 6px; color: var(--doux); font-size: 14px; }
+input {
+  padding: 10px 12px;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  background: var(--fond);
+  color: var(--texte);
+  font: inherit;
+}
+button {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--vert);
+  color: var(--carte);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button.discret {
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--trait);
+  background: transparent;
+  color: var(--texte);
+  font-weight: 500;
+}
+.message { min-height: 1.5em; margin: 8px 0 0; color: var(--doux); font-size: 14px; }
+
+.etat {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  color: var(--doux);
+  font-size: 13px;
+}
+.voyants { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; padding: 0; list-style: none; }
+.voyant { padding: 4px 10px; border-radius: 999px; font-weight: 600; }
+.voyant.ok { background: var(--vert-clair); color: var(--vert); }
+.voyant.ko { background: var(--rouge-clair); color: var(--rouge); }
+.pied { margin: 0; }

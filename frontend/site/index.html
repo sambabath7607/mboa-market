@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mboa Market</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="entete">
+    <div class="marque">
+      <span class="logo" aria-hidden="true">M</span>
+      <div>
+        <p class="nom-boutique">Mboa Market</p>
+        <p class="slogan">Le marché du quartier, en ligne</p>
+      </div>
+    </div>
+    <p class="visites" id="visites">…</p>
+  </header>
+
+  <main class="page">
+    <section class="rayon" aria-labelledby="titre-produits">
+      <div class="rayon-entete">
+        <h1 id="titre-produits">Nos produits</h1>
+        <button type="button" class="discret" id="recharger">Recharger</button>
+      </div>
+      <p class="source" id="source">Chargement…</p>
+      <ul class="produits" id="produits" aria-live="polite"></ul>
+    </section>
+
+    <section class="ajout" aria-labelledby="titre-ajout">
+      <h2 id="titre-ajout">Ajouter un produit</h2>
+      <form id="formulaire">
+        <label for="nom">Nom</label>
+        <input id="nom" name="nom" required maxlength="80" placeholder="Savon noir" autocomplete="off">
+        <label for="prix">Prix (FCFA)</label>
+        <input id="prix" name="prix" type="number" min="0" max="10000000" step="1" required placeholder="600">
+        <button type="submit">Ajouter</button>
+        <p class="message" id="message" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="etat">
+    <ul class="voyants" id="voyants" aria-label="État des services"></ul>
+    <p class="pied">Traefik → frontend (cette page) · Traefik → backend (/api) → PostgreSQL et Redis</p>
+  </footer>
+</body>
+</html>

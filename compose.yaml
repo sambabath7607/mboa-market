@@ -1,0 +1,180 @@
+# Mboa Market : la boutique complète, six services, un seul fichier.
+# Tu l'écris pas à pas, un service par étape, dans cet ordre (chaque étape finit par un commit) :
+#
+#   étape 2 (P2-02)  db          PostgreSQL 18 : ses données dans un volume nommé ; réseau back
+#                    redis       Redis 8, avec un mot de passe ; réseau back
+#   étape 3 (P2-03)  backend     l'API, construite ici (build: ./backend) ; réseaux front et back
+#   étape 4 (P2-04)  frontend    le site, construit ici (build: ./frontend) ; réseau front
+#   étape 5 (P2-05)  traefik     la seule porte, sur 127.0.0.1:8083 ; et les étiquettes (labels)
+#                                de backend et frontend, qui lui disent quoi servir
+#   étape 6 (P2-06)  sauvegarde  pg_dump chaque minute (build: ./sauvegarde), dans /var/backups/mboa-market
+#
+# Les secrets viennent de .env, qui ne va jamais dans Git : ${POSTGRES_PASSWORD}, ${REDIS_PASSWORD}…
+#   sudo docker compose up -d --build        construit, crée et démarre (ou met à jour) ce qui est écrit
+#   sudo docker compose ps                   l'état des services
+#   sudo docker compose logs -f <service>    le journal d'un service
+# Le guide, étape par étape : less /srv/mboamarket/tickets/projet2.md (et le support PDF).
+name: mboa-market
+
+
+name: mboa-market
+
+services:
+  # Étape 2 (P2-02) : la base et Redis
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?il manque dans .env, cp .env.exemple .env}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks: [back]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.10-alpine
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?il manque dans .env, cp .env.exemple .env}
+      - --save
+      - "60"
+      - "1"
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redisdata:/data
+    networks: [back]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # Étape 3 (P2-03) : l'API (+ ses labels, étape 5)
+  backend:
+    build: ./backend
+    image: mboa-api:3.0
+    environment:
+      MBOA_DB_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MBOA_REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MBOA_JETON: ${MBOA_JETON:?il manque dans .env, cp .env.exemple .env}
+    networks: [front, back]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`${DOMAINE}`) && PathPrefix(`/api`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.middlewares=sans-prefixe-api,limite-api
+      - traefik.http.middlewares.sans-prefixe-api.stripprefix.prefixes=/api
+      - traefik.http.middlewares.limite-api.ratelimit.average=20
+      - traefik.http.middlewares.limite-api.ratelimit.burst=40
+      - traefik.http.services.api.loadbalancer.server.port=8000
+    restart: unless-stopped
+
+  # Étape 4 (P2-04) : le site (+ ses labels, étape 5)
+  frontend:
+    build: ./frontend
+    image: mboa-frontend:1.0
+    networks: [front]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.site.rule=Host(`${DOMAINE:?il manque DOMAINE dans .env}`)
+      - traefik.http.routers.site.entrypoints=websecure
+      - traefik.http.services.site.loadbalancer.server.port=80
+    restart: unless-stopped
+
+  # Étape 5 (P2-05) : Traefik, la seule porte
+  traefik:
+    image: traefik:v3.7
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --global.aliasheadersstrategy=delete
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=mboa-market_front
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --ping=true
+      - --accesslog=true
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+      - "127.0.0.1:8084:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/mboa-market/letsencrypt:/letsencrypt
+    networks: [front]
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # Étape 6 (P2-06) : la sauvegarde chaque minute
+  sauvegarde:
+    build: ./sauvegarde
+    image: mboa-sauvegarde:1.0
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      GARDER_MINUTES: "60"
+      TZ: Africa/Douala
+    volumes:
+      - ${DOSSIER_SAUVEGARDES:-/var/backups/mboa-market}:/sauvegardes
+    tmpfs:
+      - /var/lib/postgresql
+    networks: [back]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+# Étape 2 : les réseaux et les volumes
+networks:
+  front:
+  back:
+    internal: true
+
+volumes:
+  pgdata:
+  redisdata:
+
+services:
+  # À FAIRE (étape 2) : db, puis redis.
+
+  # À FAIRE (étape 3) : backend.
+
+  # À FAIRE (étape 4) : frontend.
+
+  # À FAIRE (étape 5) : traefik (et les labels de backend et de frontend).
+
+  # À FAIRE (étape 6) : sauvegarde.
+
+# À FAIRE (étape 2) : les deux réseaux, front et back (internal: true),
+# et les deux volumes nommés, pgdata et redisdata.
