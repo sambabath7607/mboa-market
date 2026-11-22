@@ -1,11 +1,13 @@
 # Mboa Market
 
-[![CI](https://github.com/À-COMPLÉTER/mboa-market/actions/workflows/ci.yml/badge.svg)](https://github.com/À-COMPLÉTER/mboa-market/actions/workflows/ci.yml)
+[![CI](https://github.com/sambabath7607//mboa-market/actions/workflows/ci.yml/badge.svg)](https://github.com/sambabath7607//mboa-market/actions/workflows/ci.yml)
 
 La boutique en ligne d'un marché de quartier : six conteneurs, décrits dans un seul fichier,
 `compose.yaml`. Projet 2 de la formation « Devenir ingénieur DevOps ».
 
-<!-- À COMPLÉTER : remplace ce commentaire par une phrase à toi : ce que tu as construit, et pour qui. -->
+-une applicatin des gestions des produits   ---pour les marchants du quartier de gerer leurs produits
+
+
 
 ## Ce qu'il y a dedans
 
@@ -44,7 +46,7 @@ flowchart LR
 Sur un serveur Linux avec Docker Engine et le plugin Compose (`docker compose version`) :
 
 ```bash
-git clone https://github.com/À-COMPLÉTER/mboa-market.git
+git clone https://github.com/sambabath7607/mboa-market.git
 cd mboa-market
 cp .env.exemple .env && chmod 600 .env
 sed -i "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 16)/" .env
@@ -100,10 +102,17 @@ gardée plusieurs semaines, et une copie hors du serveur (la règle 3-2-1).
 
 ## Ce que j'ai appris
 
-<!-- À COMPLÉTER : remplace ce commentaire par trois choses que tu as apprises, avec tes mots. -->
+faire commuquer plusieur services ensembles dans un seul fichier dans docker compose et leur faire commuquer par des reseaux séparés.
+
+backend {{Dockerfile - docker-compose}}
+frontend {{nginx por le page Dockerfile - docker-compose}}
+traefik {{revers-proxy  - docker-compose }}
+
+ 
+
 
 ## Auteur
 
-À COMPLÉTER : ton prénom, ton nom, et un lien vers ton profil (GitHub ou LinkedIn).
+Samba dembele dit  batch un https://www.linkedin.com/in/samba-dembele-b26225354/  https://github.com/sambabath7607/
 
 Licence MIT : voir `LICENSE`.

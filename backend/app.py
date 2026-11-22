@@ -13,6 +13,8 @@ Les réglages viennent de l'environnement (compose.yaml, qui les prend dans .env
   POSTGRES_PASSWORD             le mot de passe de la base
   MBOA_REDIS_HOST               le nom du service Redis (par défaut « redis »)
   REDIS_PASSWORD                le mot de passe de Redis
+  MBOA_JETON
+
 """
 import json
 import os
@@ -144,6 +146,10 @@ def lister():
 
 @app.post("/produits")
 def ajouter():
+    JETON = os.environ.get("MBOA_JETON" , "")
+    entete = request.headers.get("Authorization" ,"")
+    if not JETON or entete != f"Bearer {JETON}":
+        return jsonify({"erreur":"jeton manquant ou faux"}) , 401
     produit = request.get_json(silent=True) or {}
     nom, prix = produit.get("nom"), produit.get("prix")
     nom_ok = isinstance(nom, str) and 0 < len(nom.strip()) <= 80

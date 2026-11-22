@@ -5,4 +5,4 @@
 #
 # À FAIRE (étape 6, P2-06) : la ligne qui lance /usr/local/bin/sauvegarder chaque minute,
 # avec sa sortie vers > /proc/1/fd/1 et ses erreurs vers 2> /proc/1/fd/2
-* * * * *  /usr/local/bin/sauvegarder  > /proc/1/fd/12> /proc/1/fd/2
+* * * * *  /usr/local/bin/sauvegarder  > /proc/1/fd/1 2> /proc/1/fd/2
