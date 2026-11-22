@@ -1,6 +1,6 @@
 # Mboa Market
 
-[![CI](https://github.com/sambabath7607//mboa-market/actions/workflows/ci.yml/badge.svg)](https://github.com/sambabath7607//mboa-market/actions/workflows/ci.yml)
+[![CI](https://github.com/sambabath7607/mboa-market/actions/workflows/ci.yml/badge.svg)](https://github.com/sambabath7607/mboa-market/actions/workflows/ci.yml)
 
 La boutique en ligne d'un marché de quartier : six conteneurs, décrits dans un seul fichier,
 `compose.yaml`. Projet 2 de la formation « Devenir ingénieur DevOps ».
