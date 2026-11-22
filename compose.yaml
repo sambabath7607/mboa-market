@@ -15,10 +15,6 @@
 #   sudo docker compose logs -f <service>    le journal d'un service
 # Le guide, étape par étape : less /srv/mboamarket/tickets/projet2.md (et le support PDF).
 name: mboa-market
-
-
-name: mboa-market
-
 services:
   # Étape 2 (P2-02) : la base et Redis
   db:
@@ -155,7 +151,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-# Étape 2 : les réseaux et les volumes
+
+
 networks:
   front:
   back:
@@ -165,7 +162,9 @@ volumes:
   pgdata:
   redisdata:
 
-services:
+
+
+
   # À FAIRE (étape 2) : db, puis redis.
 
   # À FAIRE (étape 3) : backend.
